@@ -1,30 +1,38 @@
-stages:
-  - install
-  - build
+# .github/workflows/angular-ci.yml
+name: Angular CI
 
-variables:
-  NODE_ENV: production
-  NODE_VERSION: "14.21.3"
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
-image: node:${NODE_VERSION}
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-cache:
-  paths:
-    - node_modules/
+    strategy:
+      matrix:
+        node-version: [14.21.3]
 
-before_script:
-  - npm install -g npm@7
-  - npm ci
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
 
-install_dependencies:
-  stage: install
-  script:
-    - echo "Dependencies installed"
+      - name: Install Dependencies
+        run: |
+          npm install -g npm@7
+          npm ci
 
-build_app:
-  stage: build
-  script:
-    - npm run build -- --configuration production
-  artifacts:
-    paths:
-      - dist/
+      - name: Build Angular App
+        run: |
+          npm run build -- --configuration production
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: angular-dist
+          path: dist/
