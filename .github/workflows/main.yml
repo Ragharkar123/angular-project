@@ -1,10 +1,14 @@
-default:
-  image: alpine:latest
+name: Basic CI
 
-stages:
-  - test
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
-hello_world_job:
-  stage: test
-  script:
-    - echo "✅ GitLab CI pipeline is working!"
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Say Hello
+        run: echo "✅ GitHub Actions workflow triggered!"
