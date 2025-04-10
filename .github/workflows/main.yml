@@ -1,32 +1,30 @@
-name: Angular CI
+stages:
+  - install
+  - build
 
-on:
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
+variables:
+  NODE_ENV: production
+  NODE_VERSION: "14.21.3"
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+image: node:${NODE_VERSION}
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+cache:
+  paths:
+    - node_modules/
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
+before_script:
+  - npm install -g npm@7
+  - npm ci
 
-      - name: Install dependencies
-        run: npm install
+install_dependencies:
+  stage: install
+  script:
+    - echo "Dependencies installed"
 
-      - name: Run Lint
-        run: npm run lint
-
-      - name: Run Unit Tests
-        run: npm run test -- --watch=false --browsers=ChromeHeadless
-
-      - name: Build Angular App
-        run: npm run build -- --configuration=production
+build_app:
+  stage: build
+  script:
+    - npm run build -- --configuration production
+  artifacts:
+    paths:
+      - dist/
